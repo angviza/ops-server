@@ -1,0 +1,32 @@
+version: '3.6'
+services:
+
+  openresty:
+    image: openresty/openresty:centos
+    restart: always
+    container_name: resty
+    network_mode: "host"
+    environment:
+      TZ: Asia/Shanghai
+      ETCD_HOST: 192.168.1.50
+    volumes:
+#      - ./resty:/usr/local/openresty/lualib/resty     #!--$  docker cp resty:/usr/local/openresty/lualib/resty .
+      - ./legomd:/usr/local/openresty/lualib/legomd
+      - ./conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./conf:/etc/nginx 
+      - ./logs:/usr/local/openresty/nginx/logs  
+      - ${OPS_ROOT}/static:/usr/local/openresty/nginx/html #nginx static dir
+      - ./data/.cache:/data/.cache                   #nginx cache dir
+      - ./apisix:/usr/local/apisix #apisix log
+      - ./script:/usr/local/script     
+    command:
+      - sh
+      - -c 
+      - |
+          chmod +x /usr/local/script/*.sh
+          /usr/local/script/entrypoint.sh            
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+

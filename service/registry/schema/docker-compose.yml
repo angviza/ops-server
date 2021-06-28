@@ -1,0 +1,11 @@
+version: '3'
+services:
+  schema-registry:
+    container_name: schema-registry
+    network_mode: "host"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS:192.168.1.51:9092,192.168.1.52:9092,192.168.1.53:9092      
+      SCHEMA_REGISTRY_DEBUG: 'false'
+      SCHEMA_REGISTRY_HOST_NAME: 192.168.1.50
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    image: confluentinc/cp-schema-registry

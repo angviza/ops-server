@@ -1,0 +1,28 @@
+discovery.seed_hosts:
+#    - 192.168.1.51:4300
+    - 192.168.1.52 #:4300
+    - 192.168.1.53 #:4300
+cluster.initial_master_nodes:
+    - 192.168.1.51
+    - 192.168.1.52
+#    - 192.168.1.53
+auth:
+  host_based:
+    enabled: true
+    config:
+      0:
+        user: crate
+#        address: 127.0.0.1
+        method: trust
+      z:
+        method: password
+gateway:
+    recover_after_nodes: 3
+    expected_nodes: 3
+node:
+    master: true
+    data: true
+    name: "node-51"
+network:
+    publish_host: 192.168.1.51
+    bind_host: 0.0.0.0

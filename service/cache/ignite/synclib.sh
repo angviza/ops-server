@@ -1,0 +1,1 @@
+scp libs/* root@192.168.1.52:/data/services/ignite/libs/

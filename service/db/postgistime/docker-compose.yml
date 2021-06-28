@@ -1,0 +1,14 @@
+version: '3'
+services:
+  timescaledb:
+    container_name: postgistime
+    image: timescale/timescaledb-postgis:latest-pg13
+    ports:
+      - "5432:5432"
+    environment:
+      TZ: Asia/Shanghai      
+      POSTGRES_USER: ${USER} 
+      POSTGRES_DB: ${DB}
+      POSTGRES_PASSWORD: ${PASSWORD}
+    volumes:
+      - ./data:/var/lib/postgresql:rw

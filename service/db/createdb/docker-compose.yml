@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+
+  cratedb:
+    image: crate:4.5.0
+    network_mode: "host"
+    container_name: cratedb
+    environment:
+      - CRATE_HEAP_SIZE=4g   
+      - TZ=Asia/Shanghai 
+    volumes: 
+      - ./data:/crate/data
+      - ./logs:/crate/logs
+      - ./config:/crate/config
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure

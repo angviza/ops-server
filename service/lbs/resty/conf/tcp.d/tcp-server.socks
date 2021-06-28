@@ -1,0 +1,13 @@
+server {
+    listen 1234;
+
+    lua_socket_buffer_size 128k;
+    # lua_socket_connect_timeout 0;
+    # lua_socket_read_timeout 0;
+    # lua_socket_send_timeout 0;
+
+    content_by_lua_block {
+        local server = require("legomd.test.tcp")
+        server.run()
+    }
+}

@@ -1,0 +1,10 @@
+server {
+  listen       13200;
+
+  lua_check_client_abort on;
+  lua_socket_log_errors off;
+  lua_socket_buffer_size 128k;
+
+  content_by_lua_file /usr/local/openresty/lualib/legomd/mds/tcp/hj212/server.lua;
+
+}

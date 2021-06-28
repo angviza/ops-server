@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  s3:
+    image: minio/minio
+    container_name: s3
+    command: server /data
+    environment:
+      - MINIO_ACCESS_KEY=${ACCESS_KEY}
+      - MINIO_SECRET_KEY=${SECRET_KEY}
+    ports:
+      - '9000:9000'
+    volumes:
+      - './data:/data'
+      - './config:/root/.minio'

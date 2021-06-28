@@ -1,0 +1,11 @@
+version: "3"
+services:
+  nginx:
+    container_name: nginx
+    restart: always
+    image: nginx
+    network_mode: "host"
+    volumes:
+#      - ./conf:/etc/nginx            #映射nginx的配置文件到容器里
+      - ./logs:/var/log/nginx
+      - ${OPS_ROOT}/static/:/www                    #映射nginx的网页目录到容器里

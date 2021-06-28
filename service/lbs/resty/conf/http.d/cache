@@ -1,0 +1,18 @@
+# https://blog.csdn.net/qq_39523111/article/details/109988763
+# static file cache
+# include server>server>location
+# etag off;
+try_files $uri $uri/ /index.html;
+# static file 
+if ($request_filename ~* .*\.(ico|css|js|gif|jpeg|jpg|png|woff|ttf|otf|svg|woff2|eot|json)$)
+{
+    expires    30d;
+    add_header Cache-Control "public, no-transform";
+    #add_header  Cache-Control  max-age=31536000;
+}
+    
+if ($request_filename ~* .*\.(?:htm|html)$)
+{
+    expires -1s;
+    add_header Cache-Control "no-cache";
+}

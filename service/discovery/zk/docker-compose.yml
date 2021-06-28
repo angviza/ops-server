@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  zoo:
+    image: zookeeper:3.7.0
+    network_mode: "host"
+    container_name: zoo
+    environment:
+      ZOO_MY_ID: 1
+      TZ: Asia/Shanghai
+      ZOO_SERVERS: ${ZOO_SERVERS}
+    volumes:
+      - ./data:/data
+      - ./datalog:/datalog
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure 

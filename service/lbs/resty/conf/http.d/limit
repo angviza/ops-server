@@ -1,0 +1,5 @@
+#
+# 超过1m流量后触发限流策略
+limit_rate_after 1m;
+# 50k /s
+limit_rate 50k;

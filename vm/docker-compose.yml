@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  vm_devops:
+    image:  opmatrix/sshd-docker-builder
+    container_name: vm_devops
+    restart: on-failure:5
+    privileged: true
+    command: /usr/sbin/init
+    mem_limit: 4g
+    mem_reservation: 512m
+    cpus: 2
+    ports:
+      - "2227:22"
+      - "5906-5909:5906-5909"
+    environment:
+      TZ: Asia/Shanghai      
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${OPS_ROOT}/scripts:/data/script:ro
+      - ./devops:/data
+      - ./commons:/data/service/commons:ro

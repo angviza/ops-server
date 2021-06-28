@@ -1,0 +1,22 @@
+version: '3.8'
+services:  
+  ignite:
+    image: apacheignite/ignite:2.10.0
+    network_mode: "host"
+    container_name: ignite
+    environment:
+      - IGNITE_WORK_DIR=/ignite/data
+      - CONFIG_URI=/ignite/config/ignite.xml
+      - EXTERNAL_LIBS=
+      - OPTION_LIBS=ignite-rest-http,ignite-h2
+      - JVM_OPTS=${JVM_OPTS}    
+      - IGNITE_JMX_PORT=9012
+      - IGNITE_QUIET=false
+    volumes:
+      - ./data:/ignite/data
+      - ./config:/ignite/config
+      - ./libs:/opt/ignite/apache-ignite/libs/user_libs
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure

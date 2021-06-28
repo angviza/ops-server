@@ -1,0 +1,65 @@
+  lua_code_cache off; #关闭代码缓存，利于调用，生产环境不建议
+  init_by_lua_block {  #当nginx 启动时，初始化时，从redis加载配置，或者从etcd 加载配置,该数据可以做一个后台管理，运维人员直接后台操作
+    require('ngx.balancer')
+    _G.BACKENDS = {
+      {'172.17.0.1', 1000}, #消息netty服务器c2s-1
+      {'172.17.0.2', 1000}, #消息netty服务器c2s-2
+      {'172.17.0.3', 1000}, #消息netty服务器c2s-3
+    }
+  }
+  
+  #配置lua请求拦截器 upstream
+  upstream lua_dispatcher {
+    server 0.0.0.1:1234;
+    balancer_by_lua_block {
+      local balancer = require('ngx.balancer')
+      local backend_index
+      local hash = ngx.crc32_long(ngx.ctx.devid);
+      backend_index = (hash % 2) + 1
+      local backend_table = _G.BACKENDS[backend_index]
+      #通过激活id算出一个hash值 取个模后，得到服务器下标index 然后更新balancer 即可流量负载过去
+      local ok, err = balancer.set_current_peer(table.unpack(backend_table))
+      if not ok then
+          ngx.log(ngx.ERR, err)
+          ngx.exit(ngx.ERROR)
+      end
+    }
+  }
+  
+   # 配置代码 proxy
+  server {
+    listen 9000;
+    proxy_pass lua_dispatcher;
+    preread_by_lua_block {
+        require("pack")
+        local mypack    = string.pack
+        local myunpack    = string.unpack
+        local sock = ngx.req.socket(true)
+        if sock then
+            ngx.say("got the request socket")
+        else
+            ngx.say("failed to get the request socket: ", err)
+            return
+        end
+        while true do
+            #先尝试读取固定头 6个字节
+            local data, err = sock:receive(6)
+            #如果遇到timeout,或者close的情况，则break 本次循环读取，继续下一条读取
+            if err=='timeout' or err =='close' then
+                break
+            end
+            #按消息推送私有协议读取返回的参数，type1为消息类型，ver2为消息推送私有协议版本号，time待命时间，len4为消息体的长度，不包含头的长度
+            local succ,succLen,type1,Ver2,Time3,Len4 = pcall(myunpack,data,">ccHH")
+            #读取剩余的消息体长度内容
+            local body, err = sock:receive(Len4)
+            #如果读取body为空，则退出
+            if body == nil then
+                break
+            end
+            #打印body消息内容 解析body是一个json串，需要对json进行解码，再赋值给ngx.ctx 全局上下文中共享变量
+            ngx.ctx.device_id = body[devid]
+            ngx.log(ngx.ERR, "------bdy ", body)
+        end
+  
+    }
+  }

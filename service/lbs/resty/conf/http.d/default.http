@@ -1,0 +1,53 @@
+server {
+    listen 8080;
+    server_name default.legomd.cn 192.168.1.90;
+
+    default_type application/json;
+    #引入http server 公共配置
+    include /etc/nginx/http.d/http;
+
+    root /data/static/default.legomd.cn;
+    index index.htm index.html;
+
+    #引入配置
+    include /etc/nginx/http.d/default/*.conf;
+
+    location = /favicon {
+        log_not_found on;
+        access_log off;
+        return 200;
+    }
+
+    location / {
+         proxy_pass http://192.168.1.7:8080;
+
+         #禁止Scrapy等工具的抓取
+         if ($http_user_agent ~* (Scrapy|Curl|HttpClient)) {
+            return 403;
+         }
+         #禁止指定UA及UA为空的访问
+         if ($http_user_agent ~* "FeedDemon|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|EasouSpider|Ezooms|^$" ) {
+            return 403;             
+         }
+         #禁止非GET|HEAD|POST方式的抓取
+         if ($request_method !~ ^(GET|HEAD|POST)$) {
+            return 403;
+         }
+         #此处灵活组合
+         if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Credentials' 'true';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PATCH, DELETE, PUT, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Access-Control-Expose-Headers, Token, Authorization';
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain charset=UTF-8';
+            add_header 'Content-Length' 0;
+            return 204;
+         }
+         #禁止访问的文件或目录
+         location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|README.md)
+         {
+             return 404;
+         }
+    }
+}

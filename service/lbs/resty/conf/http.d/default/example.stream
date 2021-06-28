@@ -1,0 +1,29 @@
+# http://nginx.org/en/docs/http/ngx_http_upstream_module.html#keepalive
+# https://www.jianshu.com/p/3cc961c0b368
+
+# max_conns=number：默认是0，限制一台服务器同时最大的连接数.  指的是一个worker进程的限制
+# server  192.168.0.173:8080  max_conns=100;
+
+# slow_start=time：服务器慢启动，默认是0；##商业版才能用##   不适用于hash和random两种负载均衡方式
+# server  192.168.0.173:8080  slow_start=60s;
+
+# down：表示这一台服务目前不可用
+# backup: 表示这一台是备用机，只有其他服务器全挂了备用机才能访问。
+
+# max_fails=number: Nginx基于连接探测，如果发现后端异常，在单位周期为fail_timeout设置的时间，中达到max_fails次数，这个周期次数内，如果后端同一个节点不可用，那么接将把节点标记为不可用，并等待下一个周期（同样时常为fail_timeout）再一次去请求，判断是否连接是否成功
+# fail_timeout=time: 失败的时间段，失败了一段时间后，会再次询问此服务器能不能用，能用的话可以重新处理请求，默认值是10s
+
+upstream example { 
+    # 负载均衡策略
+    # ip_hash                                           # 根据用户的ip 进行 hash运算了之后指向一天服务器，ip不变则访问的服务不会变
+    # hash $request_uri;                                # 就是把url进行hash运算（url尾巴有'/' 和没有这个斜杠，hash的结果是不一样 的）
+    # least_conn;                                       # 哪一台连接数最少，就去请求哪一台
+    # keepalive 32;                                     # 该keepalive指令不限制 nginx 工作进程可以打开的上游服务器的连接总数
+    # keepalive_timeout 30s;                            # 设置后端连接的最大idle时间为30s
+#    server  192.168.1.101:8080  slow_start=60s;         # 商业版才可用
+#    server  192.168.1.102:8080  down;                   # 此服务器不可用
+#    server  192.168.1.103:8080  weight=5;               # 权重为5 https://blog.csdn.net/zhangskd/article/details/50194069
+    server  192.168.1.7:8082  weight=2 max_conns=20;  # 权重为2，worker最大连接数20
+    server  192.168.1.7:8080  backup;                 # 备用机，刚刚开始不能用，其他服务器全挂了才能用
+    server  192.168.1.7:8080  max_fails=2  fail_timeout=1s;
+}

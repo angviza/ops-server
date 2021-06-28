@@ -1,0 +1,9 @@
+server {
+  listen       7998;
+  content_by_lua_block {
+      ngx.say("What's up?")
+      ngx.flush(true)  -- flush any pending output and wait
+      ngx.sleep(3)  -- sleeping for 3 sec
+      ngx.say("Bye bye...")
+  }
+}

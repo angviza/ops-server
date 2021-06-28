@@ -1,0 +1,10 @@
+# TODO 测试
+set $uid -1;
+set $oid -1;
+access_by_lua_block{
+local jwt = require 'legomd.mds.auth.jwt'
+    local payload = jwt.verify()
+    if payload then
+        ngx.ctx.orgid = string.format('%d',payload.o)
+    end
+}

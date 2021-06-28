@@ -1,0 +1,4 @@
+upstream redis {
+    server     192.168.1.32:6380;
+    keepalive  2;
+}
