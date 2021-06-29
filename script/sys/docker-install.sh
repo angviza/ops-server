@@ -9,8 +9,8 @@ cat >> /etc/yum.repos.d/docker.repo <<EOF
 }
 EOF
 
-
-systemctl start docker
 systemctl enable docker
+systemctl start docker
+
 
 

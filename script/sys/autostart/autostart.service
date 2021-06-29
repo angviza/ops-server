@@ -1,0 +1,12 @@
+[Unit]
+Description=autostart-server 
+After=network.target
+ 
+[Service]
+Type=forking
+ExecStart=/home/dflc/script/autostart.sh start
+ExecReload=/home/dflc/script/autostart.sh restart
+ExecStop=/home/dflc/script/autostart.sh stop
+ 
+[Install]
+WantedBy=multi-user.target
