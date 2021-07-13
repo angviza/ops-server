@@ -1,54 +1,53 @@
 #!/bin/sh
-#
 # java runner.©2013-2021 by Quinn.Zhang (angviza@gmail.com)
+#
+# [Github] https://github.com/angviza/
+# [Github] https://github.com/legoomd/
 # Usage:
 #
 # 1. Put this script somewhere in your project
 # 2. Make .env file
-# $MAINCLASS =     ~optional app main class,if not has mainfest,must set
-# $PARAMS    =     ~optional app params for main args
-# $LIBS      =     ~optional app lib jar path
+# $APP_MAINCLASS =     ~optional app main class,if not has mainfest,must set
+# $APP_PARAMS    =     ~optional app params for main args
+# $APP_LIBS      =     ~optional app lib jar path
 # $JAVA_HOME =
-# $JAVA_OPTS =
+# $JAVA_OPTS =     ~optional
 # $HOOK_STARTED   = hook for started,like watch
 # $HOOK_STOPPED   = hook for stopped,like watch
-# $BIN            = bin path
-# $BACKUP         = backup path
-# 3. ./run.sh restart  or ./run.sh restart ../path/to/.env
+# $APP_BIN            = bin path
+# $APP_BACKUP         = backup path
+# 3. ./run.sh restart  or
+#     /path/to/run.sh restart /path/to/.env
+#
+psid=0
 printc() { echo -e "${@:1}\033[0m"; }
 printd() { printc "\033[1;36m" "$(echo ${@:1})"; }
 xenv() { set -a && source "$ENV" && shift && "$@"; }
-# ┌───────────────────────CURR DIR────────────────────────────┐
 if [ -n "$2" ]; then
    ENV="$(readlink -f $2)"
    DIR="$(dirname $(readlink -f $2))"
 else
    PWD="$0"
-   while [ -h "$PWD" ]; do # resolve $SOURCE until the file is no longer a symlink
+   while [ -h "$PWD" ]; do
       DIR="$(cd -P "$(dirname "$PWD")" && pwd)"
       PWD="$(readlink "$PWD")"
-      [[ $PWD != /* ]] && PWD="$DIR/$PWD" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+      [[ $PWD != /* ]] && PWD="$DIR/$PWD"
    done
    DIR="$(cd -P "$(dirname "$PWD")" && pwd)"
    ENV="$DIR/.env"
 fi
-# └────────────────────── CURR CURR ──────────────────────────┘
-printd "load run config from　 　: \033[1;33m $ENV "
-printd "work dir　 　 　 　 　 　: \033[1;33m $DIR "
-xenv
-BIN=${BIN:-bin}
-BIN="$DIR/$BIN"
-BACKUP=${BACKUP:-backup}
-BACKUP="$DIR/$BACKUP"
-psid=0
-#
-# ┌───────────────────────SCAN LIBS────────────────────────────┐
 
-if [ -z $MAINCLASS ]; then
-   CLASSPATH="$BIN/$(ls -lt $BIN | awk '{if ($9) printf("%s\n",$9)}' | head -n 1)"
-   op="jar"
+xenv
+APP_BIN=${APP_BIN:-bin}
+APP_BIN="$DIR/$APP_BIN"
+APP_BACKUP_DIR=${APP_BACKUP_DIR:-backup}
+APP_BACKUP_DIR="$DIR/$APP_BACKUP_DIR"
+
+if [ -z $APP_MAINCLASS ]; then
+   CLASSPATH="$APP_BIN/$(ls -lt $APP_BIN | awk '{if ($9) printf("%s\n",$9)}' | head -n 1)"
+   op=jar
 else
-   for i in $LIBS/*.jar; do
+   for i in $APP_LIBS/*.jar; do
       CLASSPATH="$CLASSPATH":$i
    done
 
@@ -57,44 +56,40 @@ else
    done
    op=classpath
 fi
-# └──────────────────────  END SCAN  ──────────────────────────┘
-test() {
-   checkpid
-   $HOOK_STARTED
-   # backup
-}
-#
-# ┌───────────────────────WATCH────────────────────────────┐
-# Usage
-# add:   watch
-# rm :   watch rm
-#
-#watch() {
-#   echo ""
-#   ./crontadm.sh ${1:-add} "* * * * * ? /data/scripts/watch1.sh $DIR"
-#}
-# └──────────────────────END WATCH──────────────────────────┘
 
 run() {
-   nohup $JAVA_HOME/bin/java $JAVA_OPTS -$op $CLASSPATH $MAINCLASS $PARAMS >app.log 2>&1 &
+   nohup $JAVA_HOME/bin/java $JAVA_OPTS -$op $CLASSPATH $APP_MAINCLASS $APP_PARAMS >app.log 2>&1 &
    sleep ${STARTINTWAIT:-10s}
+}
+
+info() {
+   DATE=$(date +%Y-%m-%d" "%H:%M:%S%z\(%Z\))
+   printd "\n┌───────────────────────────────────────────────────┐\n"
+   printd " ♨ [java-runner]: https://github.com/angviza/        ♨\n"
+   printd "LOAD CONFIG 　: \033[1;33m $ENV"
+   printd "APP_HOME 　 　: \033[1;33m $DIR"
+   printd "MAINCLASS 　　: \033[1;33m $APP_MAINCLASS"
+   printd "JAVA_HOME 　　: \033[1;33m $JAVA_HOME"
+   printd "$(uname -a)"
+   printd "\n└───────────$DATE───────────┘\n\n"
 }
 
 checkpid() {
    javaps=$(ps -ef | grep -F "$CLASSPATH" | grep -v grep | awk '{print $2}')
    psid=${javaps:-0}
    if [ $psid -ne 0 ]; then
-      printc "\033[1;36m✔\033[0m $MAINCLASS is running! (pid=$psid)"
+      printc "\033[1;36m✔\033[0m $APP_MAINCLASS is running! (pid=$psid)"
    else
-      printc "\033[1;31m✘\033[0m $MAINCLASS is \033[1;31;36mnot running ☠ "
+      printc "\033[1;31m✘\033[0m $APP_MAINCLASS is \033[1;31;36mnot running"
    fi
    printc "\033[8;31m$psid"
 }
 
 start() {
+   printd "\n ▶ ..\n"
    checkpid
-   if [ $psid -eq 0 ]; then
-      printc "\033[5;36mStarting $MAINCLASS ..."
+   if [ $psid == 0 ]; then
+      printc "\033[5;36mStarting $APP_MAINCLASS ..."
       run
       cnt=0
       while [ $cnt -le 100 ]; do
@@ -117,39 +112,23 @@ stop() {
    checkpid
 
    if [ $psid -ne 0 ]; then
-      printc "\033[6;31mStopping $MAINCLASS ...(pid=$psid) "
+      printc "\033[6;31mStopping $APP_MAINCLASS ...(pid=$psid)"
       kill $psid
-      if [ $? -eq 0 ]; then
-         echo "[OK]"
-      else
-         echo "[Failed]"
-      fi
-      $HOOK_STOPPED
       sleep 1s
-      checkpid
-      if [ $psid -ne 0 ]; then
-         stop
-      fi
+      stop
+   else
+      $HOOK_STOPPED
+      printc "\033[1;31m $APP_MAINCLASS Stopped"
    fi
 }
 backup() {
-   printc "\033[5;36m back $BIN to $BACKUP"
-   mkdir -p ${BACKUP}
-   tar -cv $BIN | gzip >${BACKUP}/$(date +%Y-%m-%d"_"%H_%M_%S).tar.gz
-   find ${BACKUP} -mtime +3 -name "*.sql.gz" -exec rm -f {} \;
-   printc "\033[1;36m back sucess"
+   printc "\033[5;36m [Backuping]:\033[0m $APP_BIN \033[1;31m➜\033[0m $APP_BACKUP_DIR"
+   mkdir -p ${APP_BACKUP_DIR}
+   tar -cv $APP_BIN | gzip >${APP_BACKUP_DIR}/$(date +%Y-%m-%d"_"%H_%M_%S).tar.gz
+   find ${APP_BACKUP_DIR} -mtime +${APP_BACKUP_DAY:-3} -name "*.sql.gz" -exec rm -f {} \;
+   printc "\033[1;36m [Backuped]\033[0m [Sucess]"
 }
-info() {
-   printc "\033[1;31;42m" "System Information:"
-   printc "\033[1;36m****************************"
-   printc "$(head -n 1 /etc/issue)"
-   printc "$(uname -a)"
-   printc "JAVA_HOME=$JAVA_HOME"
-   printc "$($JAVA_HOME/bin/java -version)"
-   printc "APP_HOME=$DIR"
-   printc "MAINCLASS=\033[5;31;46m$MAINCLASS"
-   printc "\033[1;36m****************************"
-}
+
 status() {
    checkpid
 }
@@ -157,42 +136,46 @@ status() {
 log() {
    tail -100f app.log
 }
-
-case "$1" in
-'start')
-   start
-   ;;
-'stop')
-   stop
-   ;;
-'restart')
-   stop
-   start
-   ;;
-'status')
-   status
-   ;;
-'info')
+main() {
+   case "$1" in
+   'start')
+      start
+      ;;
+   'stop')
+      stop
+      ;;
+   'restart')
+      stop
+      start
+      ;;
+   'status')
+      status
+      ;;
+   'info')
+      info
+      ;;
+   'log')
+      log
+      ;;
+   'update')
+      update
+      ;;
+   'backup')
+      backup
+      ;;
+   'test')
+      test
+      ;;
+   *)
+      echo "Usage: $0 {start|stop|restart|status|info|log} "
+      exit 1
+      ;;
+   esac
+   exit 0
+}
+if [ $(head -175 $0 | md5sum | awk '{printf "%s",$1}') == "7446fb8b5efe8de344fbb2ea2e77fd49" ]; then
    info
-   ;;
-'log')
-   log
-   ;;
-'update')
-   update
-   ;;
-'check')
-   checkpid
-   ;;
-'backup')
-   backup
-   ;;
-'test')
-   test
-   ;;
-*)
-   echo "Usage: $0 {start|stop|restart|status|info|log}"
-   exit 1
-   ;;
-esac
-exit 0
+   main $1
+else
+   echo "$0 1: syntax error near unexpected token 1, do not edit this script file"
+fi

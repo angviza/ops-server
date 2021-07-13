@@ -1,0 +1,12 @@
+{
+        "msgtype": "textcard",
+        "textcard": {
+                "title": "服务器重启通知",
+                "description": "<div class='gray'>192.168.1.33</div> <div class='normal'>dev.idflc.cn</div><div class='highlight'>请知悉</div>",
+                "url": "https://proxy.idflc.cn/redmine/",
+                "btntxt": "更多"
+        },
+        "enable_id_trans": 0,
+        "enable_duplicate_check": 0,
+        "duplicate_check_interval": 1800
+}

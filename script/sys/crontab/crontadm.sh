@@ -8,17 +8,7 @@
 # 2. list crontab ,run ./crontadm.sh l
 # 3. To add the crontab, run ./crontadm.sh add $cron
 #
-# 4. To remove the crontab, run ./crontadm.sh rm $cron
-# other script to use
-# ┌───────────────────────WATCH────────────────────────────┐
-# Usage
-# add:   watch
-# rm :   watch rm
-#
-# watch() {
-#    ./crontadm.sh ${1:-add} "* * * * * ? /data/scripts/watch1.sh $APP_PATH"
-# }
-# └──────────────────────END WATCH──────────────────────────┘
+# 4. To remove the crontab, run ./crontadm.sh rm $$cron
 #
 usage() {
     cat <<USAGE_END
@@ -34,21 +24,19 @@ if [ -z "$1" ]; then
     exit 1
 fi
 # var
-cron=$2
+cron=${@:2}
 tmp=$(mktemp)
 id
 
 sumid() {
     id=$(echo -n $cron | md5sum | awk '{printf "#%s#",$1}')
 }
-
 check_arg() {
     if [ -z "$cron" ]; then
         usage >&2
         exit 1
     fi
 }
-
 check_id() {
     sumid
     grep -w "$id" /var/spool/cron/*
@@ -57,11 +45,9 @@ check_id() {
         exit 1
     fi
 }
-
 save() {
     crontab "$tmp" && rm -f "$tmp"
 }
-
 #┌───────────────────────────────────────────────────┐
 #│                       CRD                         │
 #└───────────────────────────────────────────────────┘
@@ -82,15 +68,14 @@ remove() {
     crontab -l | sed -e "/${id}/d" >"$tmp"
     save
 }
-#───────────────main───────────────
 case "$1" in
-add)
+'add')
     add
     ;;
-l)
+'l')
     list
     ;;
-rm)
+'rm')
     remove
     ;;
 *)
