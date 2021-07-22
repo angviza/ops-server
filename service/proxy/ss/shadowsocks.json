@@ -1,0 +1,13 @@
+{
+      "server": "c30s1.jamjams.net",
+      "server_port": 52573,
+      "password": "tugxuphMLJBYmNhK",
+      "method": "aes-256-gcm",
+      "local_address": "0.0.0.0",
+      "local_port":1080,
+      "plugin": "",
+      "plugin_opts": "",
+      "plugin_args": "",
+      "remarks": "JMS-374294@c30s1.jamjams.net:52573",
+      "timeout": 5
+}

@@ -1,0 +1,17 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#  /etc/systemd/system/shadowsocks.service
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+# This unit gets pulled automatically into multi-user.target by
+[Unit]
+Description=Shadowsocks
+[Service]
+TimeoutStartSec=0
+ExecStart=/usr/local/bin/sslocal -c /data/soft/shadowsocks/shadowsocks.json
+[Install]
+WantedBy=multi-user.target
