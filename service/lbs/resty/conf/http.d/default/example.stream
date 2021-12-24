@@ -1,6 +1,10 @@
 # http://nginx.org/en/docs/http/ngx_http_upstream_module.html#keepalive
 # https://www.jianshu.com/p/3cc961c0b368
-
+# -----------------------------------------------------
+# Syntax:	upstream name { ... }
+# Default:	—
+# Context:	http
+# -----------------------------------------------------
 # max_conns=number：默认是0，限制一台服务器同时最大的连接数.  指的是一个worker进程的限制
 # server  192.168.0.173:8080  max_conns=100;
 
