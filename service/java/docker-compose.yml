@@ -1,0 +1,17 @@
+version: "3.6"
+services:
+  java:
+    image: openjdk:11.0.13-oracle
+    restart: on-failure:5
+    container_name: java
+    environment:
+      TZ: Asia/Shanghai
+    network_mode: "host"
+    volumes:
+      - /data/dflc:/data/dflc
+    command:
+      - sh
+      - -c
+      - |
+        chmod +x /data/dflc/start.sh
+        /data/dflc/start.sh
