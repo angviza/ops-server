@@ -1,12 +1,13 @@
 #!/bin/bash
 #dpkg-reconfigure dash  //no
 
-work_dir=/data/dflc
+work_root=/data/dflc
 prod=pro
 
-chmod +x $work_dir/run.sh
+work_app=$work_root/$prod
+chmod +x $work_root/javas.sh
 start() {
-    $work_dir/run.sh run $work_dir/$prod/$1
+    $work_root/javas.sh run $work_app/$1
 }
 
 #start workflow

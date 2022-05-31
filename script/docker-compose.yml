@@ -5,8 +5,8 @@ services:
     image: opmatrix/sshd-docker-builder
     container_name: vm_dev
     restart: on-failure:5
+    user: #<user or uid>:<group or gid>
     privileged: true
-    command: /usr/sbin/init
     mem_limit: 4g
     mem_reservation: 512m
     cpus: 2
@@ -22,3 +22,9 @@ services:
       - ${OPS_ROOT}/workspace/:/data/workspace/
       - ./commons:/data/service/commons
       - ./dev:/data
+    command:
+      - sh
+      - -c
+      - |
+        chmod +x /data/dflc/start.sh
+        /data/dflc/start.sh

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # java runner.©2013-2021 by Quinn.Zhang (angviza@gmail.com)
 #
 # [Github] https://github.com/angviza/
@@ -25,9 +25,9 @@ printd() { printc "\033[1;36m" "$(echo ${@:1})"; }
 xenv() { set -a && source "$ENV" && shift && "$@"; }
 if [ -n "$2" ]; then
    if [[ $2 == *".env" ]]; then
-       env_path=$2
+      env_path=$2
    else
-       env_path="$2/.env"
+      env_path="$2/.env"
    fi
    ENV="$(readlink -f $env_path)"
    DIR="$(dirname $(readlink -f $env_path))"
@@ -184,12 +184,13 @@ main() {
       exit 1
       ;;
    esac
+   echo "$psid  $1 at $DATE" >>run.log
    exit 0
 }
-#echo $(head -188 $0 | md5sum | awk '{printf "%s",$1}')
-# if [ $(head -188 $0 | md5sum | awk '{printf "%s",$1}') == "c2bfaec1e32924af4ba3616285087743" ]; then
-   info
-   main $1
+#echo $(head -189 $0 | md5sum | awk '{printf "%s",$1}')
+# if [ $(head -189 $0 | md5sum | awk '{printf "%s",$1}') == "c2bfaec1e32924af4ba3616285087743" ]; then
+info
+main $1
 # else
 #    echo "$0 1: syntax error near unexpected token 1, do not edit this script file"
 # fi
