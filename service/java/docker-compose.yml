@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   java:
-    image: openjdk:11.0.13-jre-slim #openjdk:11.0.13-jre-slim  openjdk:11.0.13-oracle
+    image: openjdk:11-oraclelinux7
     restart: on-failure:5
     container_name: java
     user: dev:dev #1001<uid>:1001<gid>  cat /etc/passwd
