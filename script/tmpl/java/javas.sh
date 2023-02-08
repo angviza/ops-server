@@ -81,6 +81,7 @@ info() {
    printd "MAINCLASS 　　: \033[1;33m $APP_MAINCLASS"
    printd "CLASSPATH　　 : \033[1;33m $CLASSPATH"
    printd "JAVA_HOME 　　: \033[1;33m $JAVA_HOME"
+   printd "JAVA_OTPS　　: \033[1;33m $JAVA_OPTS"
    printd "$(uname -a)"
    printd "\n└───────────$DATE───────────┘\n\n"
 }
