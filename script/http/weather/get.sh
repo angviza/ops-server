@@ -1,6 +1,6 @@
 #!/bin/bash
 
-request_xml_tmpl=request.xml
+request_xml_tmpl=./data/request.xml
 response_data=./data/res.xml
 #
 #
