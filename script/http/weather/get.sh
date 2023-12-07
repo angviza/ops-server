@@ -1,4 +1,4 @@
-#!/bin/bash
+#!E:/bash
 
 request_xml_tmpl=./data/request.xml
 response_data=./data/res.xml
@@ -30,7 +30,7 @@ postxml @$request_xml -o $response_data http://www.webxml.com.cn/WebServices/Wea
 curr=$(md5sum $response_data | cut -d' ' -f1)
 last=$(md5sum $response_data_last | cut -d' ' -f1)
 
-if [ "$curr" != "$last" ] || [ ! -n "$1" ]; then
+if [ "$curr" != "$last" ] || [ -n "$1" ]; then
     [[ "$curr" == "$last" ]] && echo "no change,reporting..." || echo "has changed,reporting..."
     #curl -o .res.json -H "Content-Type: text/xml; charset=utf-8" -d @data/res.xml -X POST http://39.108.78.230:13336/logistics/carry/api/v1/third/hip
     #echo "$(<.res.json)"
