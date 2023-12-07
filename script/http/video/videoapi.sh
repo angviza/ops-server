@@ -1,5 +1,7 @@
 #!/bin/bash
-source ./http.sh
+# 获取当前脚本所在目录
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$script_dir/../core/http.sh"
 
 api="https://media.idflc.cn/api"
 
@@ -43,7 +45,7 @@ function getAndcache() {
 
 function teleboot() {
     local deviceId=$1
-    deviceId=${deviceId:-"44030700491187000001"}
+    deviceId=${deviceId:-"440307004911870000010"}
     info "teleboot $deviceId"
     get "$api/device/control/reboot/$deviceId"
     info "结果：$RESULT"

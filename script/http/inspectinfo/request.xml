@@ -1,0 +1,59 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+    xmlns:urn="urn:hl7-org:v3">
+    <soap:Header/>
+    <soap:Body>
+        <urn:HIPMessageServer>
+            <!--Optional:-->
+
+            <!--Optional:-->
+            <urn:action>HQGL</urn:action>
+            <urn:message>
+                <![CDATA[
+         <PRPA_IN000001UV03>
+         <id root="2.999.1.96" extension="eeeeeee" /> 
+         <creationTime value="2022222222222" /> 
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN000001UV03" /> 
+         <receiver typeCode="RCV"> <telecom value="" /> 
+         <device classCode="DEV" determinerCode="INSTANCE"> 
+         <id root="2.999.1.97" extension="HIP-CDR" /> 
+         <telecom value="设备编号" /> 
+         <softwareName code="HIP-CDR" displayName="临床数据中心" codeSystem="2.999.2.3.2.84" codeSystemName="医院信息平台系统域代码表" /> 
+         </device></receiver><sender typeCode="SND"> <telecom value="" />
+         <device classCode="DEV" determinerCode="INSTANCE"> 
+         <id root="2.999.1.98" extension="hqgl" /> 
+         <telecom value="QueryPropertyList" />
+         <!-- 请求方法 -->
+<softwareName code="HIS_Property" displayName="后勤管理系统" codeSystem="2.999.2.3.2.84" codeSystemName="医院信息平台系统域代码表" />
+<!-- 系统代码 -->
+</device>
+</sender>
+<controlActProcess classCode="CACT" moodCode="APT">
+<subject typeCode="SUBJ">
+
+<!-- 请求参数消息体 -->
+<request>
+<ReceiverPropertyInfo>
+<!-- 开始时间，结束时间必填 -->
+<begintime></begintime>
+<endtime></endtime>
+<!-- ZT 状态：0 新增  1 接单  2 完成 -->
+<zt></zt>
+<!-- xqlx 需求类型：01 A类  02 B类  03 C类 04 D类 05 E类 -->
+<xqlx></xqlx>
+<!-- yslx 运送类型：01 标本  02 文件  03 陪检 04 处方取药 05 中心药房取药  06 取药箱到中心药房取药 07 转床 08 推床边胸片机 09 换床单 10 送紧急会诊单  11 送紧急手术单 12 其他项目 -->
+<yslx></yslx>
+<!-- qsks 起始科室：感染二区护士站 -->
+<qsks></qsks>
+<!-- 目标科室名称 ： 放射科 ， B超室  -->
+<mbks></mbks>
+<!-- 运送人 ： 黄文轩  -->
+<ysr></ysr>
+</ReceiverPropertyInfo>
+</request></subject>
+</controlActProcess>
+</PRPA_IN000001UV03>
+         ]]>
+            </urn:message>
+        </urn:HIPMessageServer>
+    </soap:Body>
+</soap:Envelope>

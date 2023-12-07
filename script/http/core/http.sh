@@ -1,5 +1,6 @@
 #!/bin/bash
-source ./utils.sh
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$script_dir/utils.sh"
 
 max_retries=3
 retrys=$max_retries
@@ -8,12 +9,14 @@ function before_request() {
     echo "$@"
 }
 function after_response() {
+    RESULT=$2
     local now=$(now)
     echo "end req : $now"
 }
 function request() {
-    if [ $@ ]; then
-        REQUESTBODY=$@
+    local args=$@
+    if [ "$args" ]; then
+        REQUESTBODY="$args"
     fi
     local request_=$(before_request $REQUESTBODY)
 
@@ -23,7 +26,7 @@ function request() {
     local status=${response: -3}
     local res=${response::-3}
     local code=$(jsonk_int "$res" "code")
-    if [ ! $code ]; then
+    if [ $status != 200 ] && [ ! $code ]; then
         err "request error $response"
         RESULT="$status"
         onError $response
@@ -35,9 +38,11 @@ function request() {
 function post() {
     request -X POST $@
 }
-
+function postxml() {
+    post -H '"Content-Type: text/xml; charset=utf-8"' -d $@
+}
 function postjson() {
-    post -H "Content-Type: application/json" -d $@
+    post -H '"Content-Type: application/json; charset=utf-8"' -d $@
 }
 
 function get() {

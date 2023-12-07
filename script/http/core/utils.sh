@@ -1,6 +1,8 @@
 #!/bin/bash
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$script_dir/shell-logger.sh"
 STARTTIME=$(date +"%Y-%m-%d %H:%M:%S")
-source ./shell-logger.sh
 LOGGER_LEVEL=0
 LOGGER_ERROR_TRACE=0
 LOGGER_STDERR_LEVEL=4
