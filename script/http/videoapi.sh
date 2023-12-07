@@ -1,24 +1,51 @@
 #!/bin/bash
 source ./http.sh
-tokenf='./.token'
+
 api="https://media.idflc.cn/api"
 
-function token_set() {
-    # echo "token_set $@"
-    local token=$(check_token)
+cache_token="./caches/.token"
+
+mkdir -p ${cache_token%/*}
+
+function before_request() {
+    local token=$(cache_get "$cache_token")
     echo "-H \"Access-Token:$token\" $@"
 }
-
-function gettoken() {
-    res=$(curl -s "$api/user/login?username=dflc&password=07dce313fa66737b06419ae3249c11dd")
-    local token=$(jsonk_str "$res" "accessToken")
-    echo $token >$tokenf
-    echo "$token"
+function after_response() {
+    local now=$(now)
+    if [ $code == 401 ] && [ $retrys -gt 0 ]; then
+        retrys=$((retrys - 1))
+        cache_getx "$cache_token"
+        request
+    else
+        retrys=$max_retries
+        RESULT="$res"
+    fi
+}
+function onError() {
+    err "gio 出错了$1  $RESULT"
+}
+function getAndcache() {
+    case "$1" in
+    "$cache_token")
+        res=$(curl -s "$api/user/login?username=dflc&password=07dce313fa66737b06419ae3249c11dd")
+        local token=$(jsonk_str "$res" "accessToken")
+        echo "$token"
+        ;;
+    'cache_token1')
+        change $deviceId
+        ;;
+    *)
+        echo "cmd $1 not found"
+        ;;
+    esac
 }
 
 function teleboot() {
-    info "teleboot"
-    get "$api/device/control/teleboot1/$1"
+    local deviceId=$1
+    deviceId=${deviceId:-"44030700491187000001"}
+    info "teleboot $deviceId"
+    get "$api/device/control/reboot/$deviceId"
     info "结果：$RESULT"
 }
 function change() {
@@ -27,12 +54,9 @@ function change() {
     info "结果：$RESULT"
 }
 
-deviceId=$2
-deviceId=${deviceId:-"44030700491187000001"}
-
 case "$1" in
 'teleboot')
-    teleboot $deviceId
+    teleboot $2
     ;;
 'change')
     change $deviceId

@@ -1,37 +1,36 @@
 #!/bin/bash
 source ./utils.sh
 
-tokenf='./.token'
 max_retries=3
 retrys=$max_retries
-function check_token() {
-    if [ $1 ]; then
-        token=$(gettoken)
-    elif [ ! $token ]; then
-        if [ ! -f $tokenf ]; then
-            token=$(gettoken)
-        else
-            token=$(cat $tokenf)
-        fi
-    fi
-    echo "$token"
-}
 
+function before_request() {
+    echo "$@"
+}
+function after_response() {
+    local now=$(now)
+    echo "end req : $now"
+}
 function request() {
-    local request_=$(token_set $@)
-    warn "req: $request_"
-    # req="curl -s -H \"Access-Token:$token\" $@"
-    local prerequest="${request_//\&/\\\&}"
-    local res=$(eval "curl -s $prerequest")
-    local code=$(jsonk_int "$res" "code")
-    if [ $code == 401 ] && [ $retrys -gt 0 ]; then
-        retrys=$((retrys - 1))
-        check_token 1
-        request $@
-    else
-        retrys=$max_retries
-        RESULT="$res"
+    if [ $@ ]; then
+        REQUESTBODY=$@
     fi
+    local request_=$(before_request $REQUESTBODY)
+
+    local prerequest="${request_//\&/\\\&}"
+    info "request: $prerequest"
+    local response=$(eval "curl -s -w "%{http_code}" $prerequest") #-v 查看请求响应主体
+    local status=${response: -3}
+    local res=${response::-3}
+    local code=$(jsonk_int "$res" "code")
+    if [ ! $code ]; then
+        err "request error $response"
+        RESULT="$status"
+        onError $response
+    else
+        after_response $code $res
+    fi
+
 }
 function post() {
     request -X POST $@
