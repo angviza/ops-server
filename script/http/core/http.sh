@@ -9,16 +9,16 @@ function before_request() {
     echo "$@"
 }
 function after_response() {
-    RESULT=$2
     local now=$(now)
     echo "end req : $now"
 }
 function request() {
     local args=$@
     if [ "$args" ]; then
-        REQUESTBODY="$args"
+        REQUESTPARAMS="$args"
+        REQUESTID=$(echo "$REQUESTPARAMS" | md5sum | cut -d' ' -f1)
     fi
-    local request_=$(before_request $REQUESTBODY)
+    local request_=$(before_request $REQUESTPARAMS)
 
     local prerequest="${request_//\&/\\\&}"
     info "request: $prerequest"
@@ -31,6 +31,7 @@ function request() {
         RESULT="$status"
         onError $response
     else
+        RESULT=$res
         after_response $code $res
     fi
 
@@ -47,4 +48,11 @@ function postjson() {
 
 function get() {
     request $@
+}
+function set_postdata() {
+    postdata_="$1"
+    postdata="$postdata_.tmp"
+    if [ -n "$2" ]; then
+        cp $1 $postdata
+    fi
 }

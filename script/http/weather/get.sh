@@ -1,41 +1,41 @@
-#!E:/bash
+#!/bin/bash
+#================================================
+#| load utils script
+#================================================
 
-request_xml_tmpl=./data/request.xml
-response_data=./data/res.xml
-#
-#
-#
-#
-#
-#
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-source "$script_dir/../core/http.sh"
 source "$script_dir/../core/soaputil.sh"
+#
+#
+dir_data=./data
 
-request_xml="$request_xml_tmpl.tmp"
-response_data_last="$response_data.last"
-cp $request_xml_tmpl $request_xml
+REQUEST_getWeatherbyCityName="$dir_data/getWeatherbyCityName.xml"
+REQUEST_thirdhip="$dir_data/getWeatherbyCityName.xml.last"
+
+function onChanged() {
+    if [ $1 != 0 ]; then #|| [ -n "$3" ]
+        doReportdata
+    fi
+}
+
+function doReportdata() {
+    if [ "$postdata" = "$REQUEST_getWeatherbyCityName.tmp" ]; then
+        echo "reporting..."
+        reportdata
+    fi
+}
+
+function getweather() {
+    set_postdata "$REQUEST_getWeatherbyCityName" true
+    updatepdx 7 "深圳"
+    request_soap http://www.webxml.com.cn/WebServices/WeatherWebService.asmx
+}
+
+function reportdata() {
+    set_postdata "$REQUEST_thirdhip"
+    request_soap http://192.168.1.117:8080/logistics/carry/api/v1/third/hip
+}
 
 echo "+----------------- [ ${STARTTIME} ]----------------+"
-
-#theCityName
-update 7 "深圳"
-
-# ------------------------end set query---------------------
-
-postxml @$request_xml -o $response_data http://www.webxml.com.cn/WebServices/WeatherWebService.asmx
-#curl -s -o ./data/res.xml -H "Content-Type: text/xml; charset=utf-8" -d @.request.xml -X POST http://www.webxml.com.cn/WebServices/WeatherWebService.asmx
-# echo $RESULT
-# echo $RESULT >./data/res.xml
-curr=$(md5sum $response_data | cut -d' ' -f1)
-last=$(md5sum $response_data_last | cut -d' ' -f1)
-
-if [ "$curr" != "$last" ] || [ -n "$1" ]; then
-    [[ "$curr" == "$last" ]] && echo "no change,reporting..." || echo "has changed,reporting..."
-    #curl -o .res.json -H "Content-Type: text/xml; charset=utf-8" -d @data/res.xml -X POST http://39.108.78.230:13336/logistics/carry/api/v1/third/hip
-    #echo "$(<.res.json)"
-    mv $response_data $response_data_last
-else
-    echo "no change"
-fi
+getweather
 echo -e "+------------------------ [END] ------------------------+\n"
