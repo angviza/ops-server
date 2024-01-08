@@ -1,8 +1,7 @@
 server {
-    listen 8080;
+    listen 80;
     server_name default.legomd.cn 192.168.1.90;
 
-    default_type application/json;
     #引入http server 公共配置
     include /etc/nginx/http.d/http;
 
@@ -12,13 +11,7 @@ server {
     #引入配置
     include /etc/nginx/http.d/default/*.conf;
 
-    location = /favicon {
-        log_not_found on;
-        access_log off;
-        return 200;
-    }
-
-    location / {
+    location /test/ {
          proxy_pass http://192.168.1.7:8080;
 
          #禁止Scrapy等工具的抓取

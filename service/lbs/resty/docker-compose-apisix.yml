@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  apisix-dashboard:
+    image: apache/apisix-dashboard
+    container_name: apisix-dashboard
+    restart: always
+    environment:
+      TZ: Asia/Shanghai     
+    ports:
+    - "9000:9000"    
+    volumes:
+    - ./dashboard_conf/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml:ro
+
+
+  apisix:
+    image: apache/apisix
+    restart: always
+    container_name: apisix
+    network_mode: "host"
+    environment:
+      TZ: Asia/Shanghai    
+    volumes:
+      - ./apisix:/usr/local/apisix
+      - ./conf:/etc/nginx       
